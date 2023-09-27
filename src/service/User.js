@@ -1,4 +1,6 @@
 const { User } = require('../models');
+const { userSchema } = require('../middleware/schema');
+const { generateJwtToken } = require('../middleware/auth/validateJwt');
 
 const getUser = async (email) => {
   const user = await User.findOne({ where: { email } });
@@ -10,7 +12,22 @@ const getByUserId = async (id) => {
   return user;
 };
 
+const createUser = async (displayName, email, password, image) => {
+  const { error } = userSchema.validate({ displayName, email, password });
+  if (error) return { status: 'BAD_REQUEST', data: { message: error.message } };
+
+  const userEmail = await getUser(email);
+  if (userEmail) return { status: 'CONFLICT', data: { message: 'User already registered' } };
+
+  const newUser = await User.create({ displayName, email, password, image });
+
+  const token = generateJwtToken({ data: { userId: newUser.id } });
+
+  return { status: 'CREATED', data: { token } };
+};
+
 module.exports = {
   getUser,
   getByUserId,
+  createUser,
 };

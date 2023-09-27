@@ -1,5 +1,5 @@
 const { UserService } = require('../service');
-const { generateJwtToken } = require('../auth/validateJwt');
+const { generateJwtToken } = require('../middleware/auth/validateJwt');
 
 const isBodyValid = (email, password) => email && password;
 

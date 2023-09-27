@@ -1,7 +1,7 @@
 // src/auth/validateJWT.js
 const jwt = require('jsonwebtoken');
 
-const { UserService } = require('../service');
+const { UserService } = require('../../service');
 
 const secret = process.env.JWT_SECRET;
 
@@ -16,7 +16,6 @@ const decodedToken = (token) => jwt.verify(token, secret);
 
 const validateJWT = async (req, res, next) => {
   const { authorization } = req.headers;
-  
   if (!authorization) {
     return res.status(401).json({ error: 'Token não encontrado' });
   }
@@ -25,9 +24,7 @@ const validateJWT = async (req, res, next) => {
   
   try {
     const decoded = decodedToken(token);
-  
     const user = await UserService.getByUserId(decoded.data.userId);
-  
     if (!user) {
       return res.status(401).json({ message: 'Erro ao procurar usuário do token.' });
     }
