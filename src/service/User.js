@@ -14,7 +14,15 @@ const getUser = async (email) => {
   return user;
 };
 
-const getByUserId = (userId) => User.findByPk(userId);
+const getByUserId = async (userId) => {
+  const user = await User.findByPk(userId, {
+    attributes: { exclude: ['password'] },
+  });
+
+  if (!user) return { status: 'NOT_FOUND', data: { message: 'User does not exist' } };
+
+  return { status: 'SUCCESSFUL', data: user };
+};
 
 const createUser = async (displayName, email, password, image) => {
   const { error } = userSchema.validate({ displayName, email, password });

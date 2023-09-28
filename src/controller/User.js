@@ -9,7 +9,7 @@ const createUser = async (req, res) => {
     
     return res.status(mapStatusHTTP(status)).json(data);
   } catch (err) {
-    return res.status(mapStatusHTTP(422)).json({ message: 'Algo deu errado' });
+    return res.status(mapStatusHTTP('UNPROCESSABLE_ENTITY')).json({ message: 'Algo deu errado' });
   }
 };
 
@@ -18,12 +18,23 @@ const getAll = async (req, res) => {
     const { status, data } = await UserService.getAll();
     return res.status(mapStatusHTTP(status)).json(data);
   } catch (err) {
-    return res.status(500).json({ message: 'Algo deu errado' });
+    return res.status(mapStatusHTTP('INTERNAL_SERVER_ERROR')).json({ message: 'Algo deu errado' });
   }
 };
 
+const getByUserId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, data } = await UserService.getByUserId(id);
+    console.log(data)
+    return res.status(mapStatusHTTP(status)).json(data);
+  } catch (err) {
+    return res.status('INTERNAL_SERVER_ERROR').json({ message: 'Algo deu errado' });
+  }
+};
 
 module.exports = {
   createUser,
   getAll,
+  getByUserId,
 };
