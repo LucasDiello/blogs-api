@@ -1,8 +1,6 @@
 // src/auth/validateJWT.js
 const jwt = require('jsonwebtoken');
 
-const { UserService } = require('../../service');
-
 const secret = process.env.JWT_SECRET;
 
 const generateJwtToken = (payload) => {
@@ -12,26 +10,26 @@ const generateJwtToken = (payload) => {
   return token;
 };
 
-const decodedToken = (token) => jwt.verify(token, secret);
+const decodedToken = (token) => jwt.verify(token, secret) || null;
 
 const validateJWT = async (req, res, next) => {
   const { authorization } = req.headers;
+  
   if (!authorization) {
-    return res.status(401).json({ error: 'Token não encontrado' });
+    return res.status(401).json({ message: 'Token not found' });
   }
   
   const token = authorization.split(' ')[1];
   
   try {
     const decoded = decodedToken(token);
-    const user = await UserService.getByUserId(decoded.data.userId);
-    if (!user) {
-      return res.status(401).json({ message: 'Erro ao procurar usuário do token.' });
+    if (decoded.exp < Date.now() / 1000) {
+      return res.status(401).json({ message: 'Expired or invalid token' });
     }
-  
+
     next();
   } catch (err) {
-    return res.status(401).json({ message: 'Token inválido' });
+    return res.status(401).json({ message: 'Expired or invalid token' });
   }
 };
 

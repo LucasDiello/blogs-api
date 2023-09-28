@@ -2,15 +2,19 @@ const { User } = require('../models');
 const { userSchema } = require('../middleware/schema');
 const { generateJwtToken } = require('../middleware/auth/validateJwt');
 
+const getAll = async () => {
+  const users = await User.findAll({
+    attributes: { exclude: ['password'] },
+  });
+  return { status: 'SUCCESSFUL', data: users };
+};
+
 const getUser = async (email) => {
   const user = await User.findOne({ where: { email } });
   return user;
 };
 
-const getByUserId = async (id) => {
-  const user = await User.findOne({ where: { id } });
-  return user;
-};
+const getByUserId = (userId) => User.findByPk(userId);
 
 const createUser = async (displayName, email, password, image) => {
   const { error } = userSchema.validate({ displayName, email, password });
@@ -30,4 +34,5 @@ module.exports = {
   getUser,
   getByUserId,
   createUser,
+  getAll,
 };

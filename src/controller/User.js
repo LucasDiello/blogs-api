@@ -13,6 +13,17 @@ const createUser = async (req, res) => {
   }
 };
 
+const getAll = async (req, res) => {
+  try {
+    const { status, data } = await UserService.getAll();
+    return res.status(mapStatusHTTP(status)).json(data);
+  } catch (err) {
+    return res.status(500).json({ message: 'Algo deu errado' });
+  }
+};
+
+
 module.exports = {
   createUser,
+  getAll,
 };
