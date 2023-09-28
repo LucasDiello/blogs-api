@@ -17,5 +17,5 @@ const getAll = async () => {
 
 module.exports = {
   createCategory,
-    getAll,
+  getAll,
 };

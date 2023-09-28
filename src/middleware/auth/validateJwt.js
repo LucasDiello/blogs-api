@@ -27,6 +27,7 @@ const validateJWT = async (req, res, next) => {
       return res.status(401).json({ message: 'Expired or invalid token' });
     }
 
+    req.userId = decoded.data.userId;
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Expired or invalid token' });
