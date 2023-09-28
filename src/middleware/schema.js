@@ -14,6 +14,13 @@ const userSchema = Joi.object({
     
 });
 
+const categorySchema = Joi.object({
+  name: Joi.string().min(3).required().messages({
+    'any.required': '"name" is required',
+  }),
+});
+
 module.exports = {
   userSchema,
+  categorySchema,
 };

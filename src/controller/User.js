@@ -26,7 +26,6 @@ const getByUserId = async (req, res) => {
   try {
     const { id } = req.params;
     const { status, data } = await UserService.getByUserId(id);
-    console.log(data)
     return res.status(mapStatusHTTP(status)).json(data);
   } catch (err) {
     return res.status('INTERNAL_SERVER_ERROR').json({ message: 'Algo deu errado' });
