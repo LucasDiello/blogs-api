@@ -1,4 +1,4 @@
-const { PostCategory, BlogPost } = require('../models');
+const { PostCategory, User, Category, BlogPost } = require('../models');
 const { postSchema } = require('../middleware/schema');
 const { verifyCategoryExists } = require('../middleware/validationCategory');
 
@@ -8,6 +8,17 @@ const mapCategories = async (categoriesId, postId) => {
       await PostCategory.create({ postId, categoryId });
     }),
   );
+};
+
+const getAll = async () => {
+  const posts = await BlogPost.findAll({
+    include: [
+      { model: User, as: 'user', attributes: { exclude: ['password'] } },
+      { model: Category, as: 'categories', through: { attributes: [] } },
+    ],
+  });
+
+  return { status: 'SUCCESSFUL', data: posts };
 };
 
 const createPost = async (title, content, categoryIds, userId) => {
@@ -34,4 +45,5 @@ const createPost = async (title, content, categoryIds, userId) => {
 
 module.exports = {
   createPost,
+  getAll,
 };
