@@ -14,7 +14,23 @@ const getAll = async (_req, res) => {
   res.status(mapStatusHTTP(status)).json(data);
 };
 
+const getByPostId = async (req, res) => {
+  const { id } = req.params;
+  const { status, data } = await BlogPostService.getByPostId(id);
+  res.status(mapStatusHTTP(status)).json(data);
+};
+
+const updatePost = async (req, res) => {
+  const { id } = req.params;
+  const { userId } = req;
+  const { title, content } = req.body;
+  const { status, data } = await BlogPostService.updatePost(id, title, content, userId);
+  res.status(mapStatusHTTP(status)).json(data);
+};
+
 module.exports = {
   createBlogPost,
   getAll,
+  getByPostId,
+  updatePost,
 };

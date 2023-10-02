@@ -1,5 +1,5 @@
 const { PostCategory, User, Category, BlogPost } = require('../models');
-const { postSchema } = require('../middleware/schema');
+const { postSchema, updatePostSchema } = require('../middleware/schema');
 const { verifyCategoryExists } = require('../middleware/validationCategory');
 
 const mapCategories = async (categoriesId, postId) => {
@@ -43,7 +43,45 @@ const createPost = async (title, content, categoryIds, userId) => {
   return { status: 'CREATED', data: post };
 };
 
+const getByPostId = async (id) => {
+  const post = await BlogPost.findOne({
+    where: { id },
+    include: [
+      { model: User, as: 'user', attributes: { exclude: ['password'] } },
+      { model: Category, as: 'categories', through: { attributes: [] } },
+    ],
+  });
+
+  if (!post) { return { status: 'NOT_FOUND', data: { message: 'Post does not exist' } }; }
+
+  return { status: 'SUCCESSFUL', data: post };
+};
+
+const updatePost = async (id, title, content, userId) => {
+  const { error } = updatePostSchema.validate({ title, content });
+  if (error) {
+    return { status: 'BAD_REQUEST', data: { message: error.message } };
+  }
+
+  await BlogPost.update(
+    {
+      title,
+      content,
+    },
+    { where: { id } },
+  );
+    
+  const { data: updatedPost } = await getByPostId(id);
+  if (updatedPost.user.id !== userId) {
+    return { status: 'UNAUTHORIZED', data: { message: 'Unauthorized user' } };
+  }
+
+  return { status: 'SUCCESSFUL', data: updatedPost };
+};
+
 module.exports = {
   createPost,
   getAll,
+  getByPostId,
+  updatePost,
 };

@@ -42,8 +42,20 @@ const postSchema = Joi.object({
   }),
 });
 
+const updatePostSchema = Joi.object({
+  title: Joi.string().min(1).required().messages({
+    'any.required': anyRequired.anyRequire,
+    'string.min': anyRequired.anyRequire,
+    'string.empty': anyRequired.anyRequire,
+  }),
+  content: Joi.string().min(3).required().messages({
+    'any.required': anyRequired.anyRequire,
+  }),
+});
+
 module.exports = {
   userSchema,
   postSchema,
   categorySchema,
+  updatePostSchema,
 };
