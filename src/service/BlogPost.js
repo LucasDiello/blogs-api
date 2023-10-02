@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const { PostCategory, User, Category, BlogPost } = require('../models');
 const { postSchema, updatePostSchema } = require('../middleware/schema');
 const { verifyCategoryExists } = require('../middleware/validationCategory');
@@ -79,9 +80,42 @@ const updatePost = async (id, title, content, userId) => {
   return { status: 'SUCCESSFUL', data: updatedPost };
 };
 
+const deletePost = async (id, userId) => {
+  const post = await BlogPost.findOne({ where: { id } });
+
+  if (!post) return { status: 'NOT_FOUND', data: { message: 'Post does not exist' } };
+
+  if (post.userId !== userId) {
+    return { status: 'UNAUTHORIZED', data: { message: 'Unauthorized user' } };
+  }
+
+  await BlogPost.destroy({ where: { id } });
+
+  return { status: 'NOT_CONTENT', data: { message: 'Post deleted successfully' } };
+};
+
+const searchPost = async (searchTerm) => {
+  const posts = await BlogPost.findAll({
+    where: {
+      [Op.or]: [
+        { title: { [Op.like]: `%${searchTerm}%` } },
+        { content: { [Op.like]: `%${searchTerm}%` } },
+      ],
+    },
+    include: [
+      { model: User, as: 'user', attributes: { exclude: ['password'] } },
+      { model: Category, as: 'categories', through: { attributes: [] } },
+    ],
+  });
+
+  return { status: 'SUCCESSFUL', data: posts };
+};
+
 module.exports = {
   createPost,
   getAll,
   getByPostId,
   updatePost,
+  deletePost,
+  searchPost,
 };

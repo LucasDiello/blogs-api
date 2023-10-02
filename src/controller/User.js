@@ -32,8 +32,20 @@ const getByUserId = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req;
+    const { status, data } = await UserService.deleteUser(userId);
+    console.log(status, data);
+    return res.status(mapStatusHTTP(status)).json(data);
+  } catch (err) {
+    return res.status(mapStatusHTTP('INTERNAL_SERVER_ERROR')).json({ message: 'Algo deu errado' });
+  }
+};
+
 module.exports = {
   createUser,
   getAll,
   getByUserId,
+  deleteUser,
 };

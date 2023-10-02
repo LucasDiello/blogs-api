@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, BlogPost } = require('../models');
 const { userSchema } = require('../middleware/schema');
 const { generateJwtToken } = require('../middleware/auth/validateJwt');
 
@@ -38,9 +38,20 @@ const createUser = async (displayName, email, password, image) => {
   return { status: 'CREATED', data: { token } };
 };
 
+const deleteUserPost = async (userId) => BlogPost.destroy({ where: { userId } });
+
+const deleteUser = async (id) => {
+  const user = await User.findByPk(id);
+  if (!user) return { status: 'NOT_FOUND', data: { message: 'User does not exist' } };
+  await deleteUserPost(id);
+  await User.destroy({ where: { id } });
+  return { status: 'NOT_CONTENT', data: { message: 'User deleted successfully' } };
+};
+
 module.exports = {
   getUser,
   getByUserId,
   createUser,
   getAll,
+  deleteUser,
 };
