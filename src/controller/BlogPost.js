@@ -9,8 +9,9 @@ const createBlogPost = async (req, res) => {
   res.status(mapStatusHTTP(status)).json(data);
 };
 
-const getAll = async (_req, res) => {
-  const { status, data } = await BlogPostService.getAll();
+const getAll = async (req, res) => {
+  const { q } = req.query;
+  const { status, data } = await BlogPostService.getAll(q);
   res.status(mapStatusHTTP(status)).json(data);
 };
 
@@ -35,17 +36,10 @@ const deletePost = async (req, res) => {
   res.status(mapStatusHTTP(status)).json(data);
 };
 
-const searchPost = async (req, res) => {
-  const { q } = req.query;
-  const { status, data } = await BlogPostService.searchPost(q);
-  res.status(mapStatusHTTP(status)).json(data);
-};
-
 module.exports = {
   createBlogPost,
   getAll,
   getByPostId,
   updatePost,
   deletePost,
-  searchPost,
 };

@@ -11,13 +11,25 @@ const mapCategories = async (categoriesId, postId) => {
   );
 };
 
-const getAll = async () => {
-  const posts = await BlogPost.findAll({
-    include: [
-      { model: User, as: 'user', attributes: { exclude: ['password'] } },
-      { model: Category, as: 'categories', through: { attributes: [] } },
-    ],
-  });
+const addModels = [
+  { model: User, as: 'user', attributes: { exclude: ['password'] } },
+  { model: Category, as: 'categories', through: { attributes: [] } },
+];
+
+const getAll = async (searchTerm) => {
+  const conditionalOperator = {
+    where: {
+      [Op.or]: [
+        { title: { [Op.like]: `%${searchTerm}%` } },
+        { content: { [Op.like]: `%${searchTerm}%` } },
+      ],
+    },
+    include: addModels,
+  };
+
+  const obj = searchTerm ? conditionalOperator : { include: addModels };
+
+  const posts = await BlogPost.findAll(obj);
 
   return { status: 'SUCCESSFUL', data: posts };
 };
@@ -47,10 +59,7 @@ const createPost = async (title, content, categoryIds, userId) => {
 const getByPostId = async (id) => {
   const post = await BlogPost.findOne({
     where: { id },
-    include: [
-      { model: User, as: 'user', attributes: { exclude: ['password'] } },
-      { model: Category, as: 'categories', through: { attributes: [] } },
-    ],
+    include: addModels,
   });
 
   if (!post) { return { status: 'NOT_FOUND', data: { message: 'Post does not exist' } }; }
@@ -94,28 +103,10 @@ const deletePost = async (id, userId) => {
   return { status: 'NOT_CONTENT', data: { message: 'Post deleted successfully' } };
 };
 
-const searchPost = async (searchTerm) => {
-  const posts = await BlogPost.findAll({
-    where: {
-      [Op.or]: [
-        { title: { [Op.like]: `%${searchTerm}%` } },
-        { content: { [Op.like]: `%${searchTerm}%` } },
-      ],
-    },
-    include: [
-      { model: User, as: 'user', attributes: { exclude: ['password'] } },
-      { model: Category, as: 'categories', through: { attributes: [] } },
-    ],
-  });
-
-  return { status: 'SUCCESSFUL', data: posts };
-};
-
 module.exports = {
   createPost,
   getAll,
   getByPostId,
   updatePost,
   deletePost,
-  searchPost,
 };
